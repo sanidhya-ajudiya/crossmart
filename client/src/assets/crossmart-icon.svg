@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-label="CrossMart logo">
+  <defs>
+    <!-- Emerald gradient for the bag body -->
+    <linearGradient id="bag-grad" x1="6" y1="12" x2="42" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <!-- Golden gradient for the cross icon -->
+    <linearGradient id="cross-grad" x1="20" y1="16" x2="28" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#059669" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Shopping bag body -->
+  <rect
+    x="6" y="16" width="36" height="26"
+    rx="5" ry="5"
+    fill="url(#bag-grad)"
+    filter="url(#shadow)"
+  />
+
+  <!-- Bag handle (left arc) -->
+  <path
+    d="M16 16 C16 9 20 6 24 6 C28 6 32 9 32 16"
+    stroke="#047857"
+    stroke-width="3"
+    stroke-linecap="round"
+    fill="none"
+  />
+
+  <!-- Cross / plus symbol centered on bag -->
+  <!-- Vertical bar -->
+  <rect x="22" y="23" width="4" height="12" rx="2" fill="url(#cross-grad)"/>
+  <!-- Horizontal bar -->
+  <rect x="18" y="27" width="12" height="4" rx="2" fill="url(#cross-grad)"/>
+</svg>
