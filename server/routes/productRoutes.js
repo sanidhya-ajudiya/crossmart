@@ -1,14 +1,14 @@
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import Product from '../models/Product.js';
-import { authenticate, isAdmin, type AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate, isAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
 // GET all products with filtering & sorting
-router.get('/', async (req, res): Promise<any> => {
+router.get('/', async (req, res) => {
   try {
     const { category, q, minPrice, maxPrice, sort } = req.query;
-    const filterQuery: any = {};
+    const filterQuery = {};
 
     if (category && category !== 'all') {
       filterQuery.category = category;
@@ -52,26 +52,26 @@ router.get('/', async (req, res): Promise<any> => {
 
     const products = await queryBuilder;
     res.json(products);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error fetching products.', error: error.message });
   }
 });
 
 // GET single product by ID
-router.get('/:id', async (req, res): Promise<any> => {
+router.get('/:id', async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
     }
     res.json(product);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error fetching product details.', error: error.message });
   }
 });
 
 // POST new product (Admin Only)
-router.post('/', authenticate, isAdmin, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.post('/', authenticate, isAdmin, async (req, res) => {
   try {
     const { name, description, price, originalPrice, image, category, unit, stock, isOrganic, badge } = req.body;
     if (!name || !description || price === undefined || !image || !category || !unit || stock === undefined) {
@@ -95,13 +95,13 @@ router.post('/', authenticate, isAdmin, async (req: AuthenticatedRequest, res: R
 
     await product.save();
     res.status(201).json(product);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error creating product.', error: error.message });
   }
 });
 
 // PUT update product details (Admin Only)
-router.put('/:id', authenticate, isAdmin, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/:id', authenticate, isAdmin, async (req, res) => {
   try {
     const { name, description, price, originalPrice, image, category, unit, stock, isOrganic, badge } = req.body;
     
@@ -123,23 +123,23 @@ router.put('/:id', authenticate, isAdmin, async (req: AuthenticatedRequest, res:
 
     await product.save();
     res.json(product);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error updating product.', error: error.message });
   }
 });
 
 // DELETE product or mark out of stock (Admin Only)
-router.delete('/:id', authenticate, isAdmin, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.delete('/:id', authenticate, isAdmin, async (req, res) => {
   try {
     // We can either delete the product or mark its stock as 0.
     // The frontend has "Mark out of stock" action, let's allow actual deletion or stock updates.
-    // To match frontend, we can just delete it or update stock. Let's delete it completely.
+    // To match frontend, we can just delete it completely.
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found.' });
     }
     res.json({ message: 'Product deleted successfully.' });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error deleting product.', error: error.message });
   }
 });

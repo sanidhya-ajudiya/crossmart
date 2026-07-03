@@ -1,14 +1,14 @@
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { authenticate, type AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'crossmart-secret-key-123';
 
 // Register a new customer
-router.post('/register', async (req, res): Promise<any> => {
+router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -42,13 +42,13 @@ router.post('/register', async (req, res): Promise<any> => {
         role: user.role
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Server error during registration.', error: error.message });
   }
 });
 
 // Login user or admin
-router.post('/login', async (req, res): Promise<any> => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -76,13 +76,13 @@ router.post('/login', async (req, res): Promise<any> => {
         role: user.role
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Server error during login.', error: error.message });
   }
 });
 
 // Check current user profile
-router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/me', authenticate, async (req, res) => {
   try {
     const user = req.user;
     res.json({
@@ -93,7 +93,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response)
         role: user.role
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Server error fetching user details.', error: error.message });
   }
 });

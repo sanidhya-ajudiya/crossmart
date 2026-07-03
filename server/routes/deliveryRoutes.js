@@ -1,15 +1,15 @@
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Order from '../models/Order.js';
 import DeliveryPartner from '../models/DeliveryPartner.js';
-import { authenticate, isDelivery, type AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate, isDelivery } from '../middleware/auth.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'crossmart-secret-key-123';
 
 // POST Login for delivery partner
-router.post('/login', async (req, res): Promise<any> => {
+router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -43,7 +43,7 @@ router.post('/login', async (req, res): Promise<any> => {
         role: 'delivery'
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Server error during delivery partner login.', error: error.message });
   }
 });
@@ -53,10 +53,10 @@ router.use(authenticate);
 router.use(isDelivery);
 
 // GET orders assigned to the logged-in delivery partner
-router.get('/orders', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/orders', async (req, res) => {
   try {
     const { tab } = req.query; // 'active' or 'completed'
-    const query: any = { deliveryPartner: req.user._id };
+    const query = { deliveryPartner: req.user._id };
 
     if (tab === 'completed') {
       query.status = { $in: ['Delivered', 'Cancelled'] };
@@ -70,7 +70,7 @@ router.get('/orders', async (req: AuthenticatedRequest, res: Response): Promise<
       .sort({ createdAt: -1 });
 
     // Format fields to match DeliveryOrder type in client dashboard
-    const formattedOrders = orders.map((order: any) => {
+    const formattedOrders = orders.map((order) => {
       // Split the shipping address if it contains commas, or map to a default shape
       const parts = order.shippingAddress.split(',');
       const street = parts[0]?.trim() || order.shippingAddress;
@@ -81,11 +81,11 @@ router.get('/orders', async (req: AuthenticatedRequest, res: Response): Promise<
       return {
         _id: order._id,
         user: {
-          name: (order.user as any)?.name || 'Customer',
-          email: (order.user as any)?.email || '',
-          phone: (order.user as any)?.phone || '+91 99999 99999'
+          name: order.user?.name || 'Customer',
+          email: order.user?.email || '',
+          phone: order.user?.phone || '+91 99999 99999'
         },
-        items: order.items.map((item: any) => ({
+        items: order.items.map((item) => ({
           productId: item.productId,
           name: item.name,
           unitPrice: item.unitPrice,
@@ -105,13 +105,13 @@ router.get('/orders', async (req: AuthenticatedRequest, res: Response): Promise<
     });
 
     res.json(formattedOrders);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error fetching assigned orders.', error: error.message });
   }
 });
 
 // PUT update status of an assigned order (e.g. 'Out for Delivery')
-router.put('/orders/:id/status', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/orders/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
     if (!status) {
@@ -130,13 +130,13 @@ router.put('/orders/:id/status', async (req: AuthenticatedRequest, res: Response
     order.status = status;
     await order.save();
     res.json({ message: 'Order status updated successfully.', order });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error updating order status.', error: error.message });
   }
 });
 
 // PUT verify OTP and mark order as Delivered
-router.put('/orders/:id/complete', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/orders/:id/complete', async (req, res) => {
   try {
     const { otp } = req.body;
     if (!otp) {
@@ -157,13 +157,13 @@ router.put('/orders/:id/complete', async (req: AuthenticatedRequest, res: Respon
     await order.save();
 
     res.json({ message: 'Delivery completed successfully.', order });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error completing delivery.', error: error.message });
   }
 });
 
 // PUT cancel/reject order delivery assignment
-router.put('/orders/:id/cancel', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/orders/:id/cancel', async (req, res) => {
   try {
     const { reason } = req.body; // cancellation reason (optional)
     const order = await Order.findOne({ _id: req.params.id, deliveryPartner: req.user._id });
@@ -176,7 +176,7 @@ router.put('/orders/:id/cancel', async (req: AuthenticatedRequest, res: Response
     await order.save();
 
     res.json({ message: 'Delivery assignment cancelled successfully.', order });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error cancelling delivery assignment.', error: error.message });
   }
 });

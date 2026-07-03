@@ -1,13 +1,13 @@
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
-import { authenticate, type AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 
 // POST place a new order
-router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.post('/', authenticate, async (req, res) => {
   try {
     const { items, totalPrice, shippingAddress, paymentMethod } = req.body;
     
@@ -69,31 +69,31 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
       message: 'Order placed successfully.',
       order
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error placing order:', error);
     res.status(500).json({ message: 'Error placing order.', error: error.message });
   }
 });
 
 // GET all orders of the logged-in user
-router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/', authenticate, async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id }).populate('deliveryPartner', 'name phone email').sort({ createdAt: -1 });
     res.json(orders);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error retrieving user orders.', error: error.message });
   }
 });
 
 // GET single order tracking details
-router.get('/:id', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/:id', authenticate, async (req, res) => {
   try {
     const order = await Order.findOne({ _id: req.params.id, user: req.user._id }).populate('deliveryPartner', 'name phone email vehicleType');
     if (!order) {
       return res.status(404).json({ message: 'Order not found or unauthorized.' });
     }
     res.json(order);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error retrieving order tracking details.', error: error.message });
   }
 });

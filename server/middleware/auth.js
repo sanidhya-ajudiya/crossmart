@@ -1,15 +1,10 @@
-import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import DeliveryPartner from '../models/DeliveryPartner.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'crossmart-secret-key-123';
 
-export interface AuthenticatedRequest extends Request {
-  user?: any;
-}
-
-export const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({ message: 'No authentication token provided.' });
@@ -19,7 +14,7 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET);
     
     if (decoded.role === 'delivery') {
       const partner = await DeliveryPartner.findById(decoded.id);
@@ -44,7 +39,7 @@ export const authenticate = async (req: AuthenticatedRequest, res: Response, nex
   }
 };
 
-export const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const isAdmin = (req, res, next) => {
   if (!req.user || req.user.role !== 'admin') {
     res.status(403).json({ message: 'Access denied. Administrative privileges required.' });
     return;
@@ -52,7 +47,7 @@ export const isAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunc
   next();
 };
 
-export const isDelivery = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const isDelivery = (req, res, next) => {
   if (!req.user || req.user.role !== 'delivery') {
     res.status(403).json({ message: 'Access denied. Delivery partner privileges required.' });
     return;

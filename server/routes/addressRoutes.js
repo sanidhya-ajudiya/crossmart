@@ -1,21 +1,21 @@
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import Address from '../models/Address.js';
-import { authenticate, type AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 
 // GET all addresses for the logged-in user
-router.get('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/', authenticate, async (req, res) => {
   try {
     const addresses = await Address.find({ user: req.user._id }).sort({ isDefault: -1, createdAt: -1 });
     res.json(addresses);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error retrieving addresses.', error: error.message });
   }
 });
 
 // POST create a new address
-router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.post('/', authenticate, async (req, res) => {
   try {
     const { fullName, phone, street, city, state, pincode, isDefault } = req.body;
     if (!fullName || !phone || !street || !city || !state || !pincode) {
@@ -46,13 +46,13 @@ router.post('/', authenticate, async (req: AuthenticatedRequest, res: Response):
 
     await address.save();
     res.status(201).json(address);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error adding address.', error: error.message });
   }
 });
 
 // PUT update an existing address
-router.put('/:id', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/:id', authenticate, async (req, res) => {
   try {
     const { fullName, phone, street, city, state, pincode, isDefault } = req.body;
     const address = await Address.findOne({ _id: req.params.id, user: req.user._id });
@@ -80,13 +80,13 @@ router.put('/:id', authenticate, async (req: AuthenticatedRequest, res: Response
 
     await address.save();
     res.json(address);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error updating address.', error: error.message });
   }
 });
 
 // DELETE an address
-router.delete('/:id', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.delete('/:id', authenticate, async (req, res) => {
   try {
     const address = await Address.findOneAndDelete({ _id: req.params.id, user: req.user._id });
     if (!address) {
@@ -103,13 +103,13 @@ router.delete('/:id', authenticate, async (req: AuthenticatedRequest, res: Respo
     }
 
     res.json({ message: 'Address deleted successfully.' });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error deleting address.', error: error.message });
   }
 });
 
 // PUT set default address
-router.put('/:id/default', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/:id/default', authenticate, async (req, res) => {
   try {
     const address = await Address.findOne({ _id: req.params.id, user: req.user._id });
     if (!address) {
@@ -121,7 +121,7 @@ router.put('/:id/default', authenticate, async (req: AuthenticatedRequest, res: 
     await address.save();
 
     res.json(address);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error setting default address.', error: error.message });
   }
 });

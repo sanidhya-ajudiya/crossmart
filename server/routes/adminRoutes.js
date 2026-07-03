@@ -1,10 +1,10 @@
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import DeliveryPartner from '../models/DeliveryPartner.js';
-import { authenticate, isAdmin, type AuthenticatedRequest } from '../middleware/auth.js';
+import { authenticate, isAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -13,7 +13,7 @@ router.use(authenticate);
 router.use(isAdmin);
 
 // GET admin dashboard stats
-router.get('/stats', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/stats', async (req, res) => {
   try {
     const totalOrders = await Order.countDocuments();
     const totalUsers = await User.countDocuments({ role: 'user' });
@@ -32,26 +32,26 @@ router.get('/stats', async (req: AuthenticatedRequest, res: Response): Promise<a
       outOfStock,
       recentOrders
     });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error calculating dashboard statistics.', error: error.message });
   }
 });
 
 // GET all orders in the system
-router.get('/orders', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/orders', async (req, res) => {
   try {
     const orders = await Order.find()
       .populate('user', 'name email')
       .populate('deliveryPartner', 'name phone')
       .sort({ createdAt: -1 });
     res.json(orders);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error retrieving orders.', error: error.message });
   }
 });
 
 // PUT update order status manually
-router.put('/orders/:id/status', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/orders/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
     if (!status) {
@@ -70,13 +70,13 @@ router.put('/orders/:id/status', async (req: AuthenticatedRequest, res: Response
 
     await order.save();
     res.json(order);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error updating order status.', error: error.message });
   }
 });
 
 // PUT assign a delivery partner
-router.put('/orders/:id/assign', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/orders/:id/assign', async (req, res) => {
   try {
     const { partnerId } = req.body;
     if (!partnerId) {
@@ -102,23 +102,23 @@ router.put('/orders/:id/assign', async (req: AuthenticatedRequest, res: Response
       .populate('deliveryPartner', 'name phone email');
 
     res.json(populatedOrder);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error assigning delivery partner.', error: error.message });
   }
 });
 
 // GET all delivery partners
-router.get('/partners', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.get('/partners', async (req, res) => {
   try {
     const partners = await DeliveryPartner.find().sort({ createdAt: -1 });
     res.json(partners);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error retrieving delivery partners.', error: error.message });
   }
 });
 
 // POST register a new delivery partner
-router.post('/partners', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.post('/partners', async (req, res) => {
   try {
     const { name, email, password, phone, vehicleType, isActive } = req.body;
     if (!name || !email || !password || !phone || !vehicleType) {
@@ -142,13 +142,13 @@ router.post('/partners', async (req: AuthenticatedRequest, res: Response): Promi
 
     await partner.save();
     res.status(201).json(partner);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error registering delivery partner.', error: error.message });
   }
 });
 
 // PUT update delivery partner details
-router.put('/partners/:id', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.put('/partners/:id', async (req, res) => {
   try {
     const { name, email, password, phone, vehicleType, isActive } = req.body;
     const partner = await DeliveryPartner.findById(req.params.id);
@@ -168,20 +168,20 @@ router.put('/partners/:id', async (req: AuthenticatedRequest, res: Response): Pr
 
     await partner.save();
     res.json(partner);
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error updating delivery partner details.', error: error.message });
   }
 });
 
 // DELETE a delivery partner
-router.delete('/partners/:id', async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+router.delete('/partners/:id', async (req, res) => {
   try {
     const partner = await DeliveryPartner.findByIdAndDelete(req.params.id);
     if (!partner) {
       return res.status(404).json({ message: 'Delivery partner not found.' });
     }
     res.json({ message: 'Delivery partner deleted successfully.' });
-  } catch (error: any) {
+  } catch (error) {
     res.status(500).json({ message: 'Error deleting delivery partner.', error: error.message });
   }
 });

@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
    "scripts": {
-    "dev": "nodemon --exec tsx server.ts",
-    "start": "tsx server.ts"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -20,14 +20,6 @@
     "mongoose": "^9.7.3"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.1.0",
-    "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "nodemon": "^3.1.14"
   }
 }
